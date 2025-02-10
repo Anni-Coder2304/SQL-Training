@@ -1,0 +1,29 @@
+Hey Guys,
+Here we look upon the Eindow functions and different types of Window functions.
+
+Definition: A window function performs a calculation across a set of table rows that are somehow related to the current row. But unlike aggregate functions, which collapse data into a single result, window functions preserve the rows of your table.
+
+Components of Window functions as shown below:
+
+PARTITION BY: Think of this as creating mini-groups within your data. If you’re calculating a running total by department, PARTITION BY department would ensure that each department’s total is calculated separately.
+ORDER BY: This determines the sequence in which rows are processed within each partition. For example, if you’re ranking sales by date, you’d use ORDER BY date.
+OVER(): This is the special sauce that turns an ordinary function into a window function. It defines the window or set of rows over which the function operates.
+
+Some Common Use Cases:
+> Running Totals: Summing values across rows in a sequence, like cumulative sales.
+> Ranking: Assigning a rank or position to rows based on some criteria, such as sales fig
+
+Different types of windoe functions:
+> Aggregate Functions
+SUM(): Calculates the sum of a set of values. As a window function, it’s often used for running totals. For example, SUM(sales) OVER (PARTITION BY department ORDER BY date) would give you a running total of sales within each department.
+AVG(): Computes the average of a set of values. In a window function context, it’s great for moving averages, like AVG(sales) OVER (PARTITION BY department ORDER BY date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) to calculate a three-month moving average.
+COUNT(): Counts the number of rows. Used as a window function, it can count cumulative rows, like COUNT(*) OVER (PARTITION BY department ORDER BY date) to count the number of sales records up to each date within a department.
+MAX() and MIN(): These functions return the maximum or minimum value within a set of rows. When used as window functions, they can track the highest or lowest value seen so far, like MAX(sales) OVER (PARTITION BY department ORDER BY date).
+> Ranking Functions
+ROW_NUMBER()**: Assigns a unique sequential integer to rows within a partition. It’s useful for tasks like numbering orders placed by a customer.
+RANK() and DENSE_RANK(): These functions rank rows based on a specified order. The difference between them? RANK() will leave gaps in the ranking sequence if there are ties, whereas DENSE_RANK() does not. For example, you might rank employees within departments by salary using RANK() OVER (PARTITION BY department ORDER BY salary DESC).
+NTILE(): Distributes rows into a specified number of roughly equal groups, useful for dividing data into quartiles or deciles. For example, NTILE(4) OVER (ORDER BY salary) would assign each row to one of four salary quartiles.
+> Value Functions
+LEAD(): Retrieves data from the following row within the same result set. It’s perfect for comparing a current row with the next, like LEAD(sales, 1) OVER (PARTITION BY department ORDER BY date) to see how sales compare to the next month’s sales.
+LAG(): Retrieves data from the preceding row, allowing you to compare the current row with the previous one. For example, LAG(sales, 1) OVER (PARTITION BY department ORDER BY date) can be used to compare this month’s sales to last month’s.
+FIRST_VALUE() and LAST_VALUE(): These functions return the first or last value in an ordered set of values. They’re useful for finding the earliest or latest values in a partition, like FIRST_VALUE(sales) OVER (PARTITION BY department ORDER BY date) to find the first sales figure for each department.
