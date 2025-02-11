@@ -1,0 +1,48 @@
+1.Product Line Revenue (NVIDIA SQL Interview Questions)
+
+let's suppose as a business analyst on the revenue forecasting team at NVIDIA, you are given a table of NVIDIA product_info and transactions happened in 2021(say).
+
+> Write a query to summarize the total sales revenue for each product line. The product line with the highest revenue should be at the top of the results.
+> Layout of product_info Table:
+Column Name	Type
+product_id	integer
+product_name	varchar
+product_line	varchar
+
+> Product_info datset:
+product_id	product_name	product_line
+1	Quadro RTX 8000	GPU
+2	Quadro RTX 6000	GPU
+3	GeForce RTX 3060	GPU
+4	BlueField-3	DPU
+
+> Layout of transactions Table:
+Column Name	Type
+transaction_id	integer
+product_id	integer
+amount	integer
+
+> transactions dataset:
+transaction_id	product_id	amount
+101	1	5000
+102	2	4200
+103	3	9000
+104	4	7000
+
+Example Output:
+product_line	total_revenue
+GPU	18200
+DPU	7000
+
+> SQL query shown below: 
+
+SELECT product_id,product_line,SUM(amount) AS total_sales_revenue
+FROM 
+(SELECT p.product_id,p.product_name,p.product_line,t.amount
+FROM product_info p JOIN transactions t ON p.product_id = t.product_id)
+GROUP BY product_line
+ORDER BY total_sales_revenue desc;
+
+Breakdown of the above query:
+We have used the subquery concepy here to extract the desired output. here, we have firstly join the two datasets (Product_info and transactions) to get the amount on the commmom key present in both the tablesand then we have 
+summarized the total sales revenue using the aggregate function (SUM()) over amount as total_sales_amount (This is alias) and then grouped the data on product_line as per the requirement of the probelm statement.
