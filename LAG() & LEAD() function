@@ -1,0 +1,44 @@
+Hey Folks,
+
+In this article, we walk through around LAG and LEAD window function as we have already discused about the Window functions in our previous article for example - DENSE_RANK(),RANK(),ROW_NUMBERS() etc..
+
+Here, we talk about the LAG and LEAD Window function to perform over a set/frame/window of partitioned dataset.
+
+LAG() - To select the previous record to the current record.
+LEAD() - To select the leading record to the current record.
+
+An example designed to test a query on LAG and LEAD window function as shown below. 
+
+Dataset Name: EmployeeSalaries
+
+employee_ID	salary	year
+1	80000	2020
+1	70000	2019
+1	60000	2018
+2	65000	2020
+2	65000	2019
+2	60000	2018
+3	65000	2019
+3	60000	2018
+
+Ques: Write a SQL query to return the employees who have received at least 3 year over year raises based on the table's data?
+
+Solution:
+SELECT 
+ a.employee_ID as employee_ID
+FROM 
+ # First, we'll build a subquery with employeeID, current salary, and prior year salary
+ (SELECT 
+     employee_ID, 
+     salary, 
+     # Using window function lead, we can grab the prior year's salary
+     # Note we could alternatively use LAG and sort our year in ascending order to achieve the same result
+     LEAD(salary) OVER (PARTITION BY employee_ID ORDER BY year DESC) as previous_year_sal 
+  FROM Employee ) a
+
+# Only pull records where the current salary is > the prior year salary
+WHERE a.salary > a.previous_year_sal
+GROUP BY employee_ID
+# Since we want 3 consecutive years of raises, 
+# there should be at least 2 records (e.g. yr 1 -> yr 2, yr 2 -> yr 3)
+HAVING count(*) = 2
