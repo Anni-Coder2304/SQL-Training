@@ -1,0 +1,55 @@
+The Bloomberg terminal is the go-to resource for financial professionals, offering convenient access to a wide array of financial datasets. In this SQL interview query for Data Analyst at Bloomberg, you're given the historical data on Google's stock performance.
+
+Your task is to:
+
+Task1-Calculate the difference in closing prices between consecutive months.
+Task2 Calculate the difference between the closing price of the current month and the closing price from 3 months prior.
+
+stock_prices Schema:
+Column Name	Type	Description
+date	datetime	The specified date (mm/dd/yyyy) of the stock data.
+ticker	varchar	The stock ticker symbol (e.g., AAPL) for the corresponding company.
+open	decimal	The opening price of the stock at the start of the trading day.
+high	decimal	The highest price reached by the stock during the trading day.
+low	decimal	The lowest price reached by the stock during the trading day.
+close	decimal	The closing price of the stock at the end of the trading day.
+stock_prices Example Input:
+date	ticker	open	high	low	close
+01/31/2023 00:00:00	GOOG	89.83	101.58	85.57	99.87
+02/28/2023 00:00:00	GOOG	99.74	108.82	88.86	90.30
+03/31/2023 00:00:00	GOOG	90.16	107.51	89.77	104.00
+04/30/2023 00:00:00	GOOG	102.67	109.63	102.38	108.22
+05/31/2023 00:00:00	GOOG	107.72	127.05	104.50	123.37
+
+--TASK SQL Query--
+with closing_3months as (SELECT 
+date,close,lag(close,3) over (order by date) as close_3months_prior
+from stock_prices
+where EXTRACT(YEAR from date) = 2023 and ticker = 'GOOG'
+order by date)
+
+SELECT date,close, close_3months_prior, close - closing_3months.close_3months_prior as diff
+from closing_3months;\
+
+Output:-
+
+date	close	close_3months_prior	diff
+01/31/2023 00:00:00	99.87	NULL	NULL
+02/28/2023 00:00:00	90.30	NULL	NULL
+03/31/2023 00:00:00	104.00	NULL	NULL
+04/30/2023 00:00:00	108.22	99.87	8.35
+05/31/2023 00:00:00	123.37	90.30	33.07
+06/30/2023 00:00:00	120.97	104.00	16.97
+07/31/2023 00:00:00	133.11	108.22	24.89
+08/31/2023 00:00:00	130.17	123.37	6.80
+
+ 
+
+
+
+
+
+
+  
+
+
