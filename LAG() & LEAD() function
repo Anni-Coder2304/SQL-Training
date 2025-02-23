@@ -42,3 +42,10 @@ GROUP BY employee_ID
 # Since we want 3 consecutive years of raises, 
 # there should be at least 2 records (e.g. yr 1 -> yr 2, yr 2 -> yr 3)
 HAVING count(*) = 2
+
+OUTPUT:
+Output:
+
+EmpId      
+-----------
+          1
