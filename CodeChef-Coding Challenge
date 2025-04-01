@@ -1,0 +1,109 @@
+Find each customers highest total order
+Find the order with the highest total amount for each customer (Use the concept of Correlated Subqueries and JOINS)..
+The output should contain the following headers: │ OrderID │ CustomerID │ OrderDate │ TotalOrderAmount │
+
+
+The output should contain the following headers: │ OrderID │ CustomerID │ OrderDate │ TotalOrderAmount │
+
+Expected Output:
+
+OrderID	CustomerID	OrderDate	TotalOrderAmount
+1	1	2023-01-15	1225
+2	2	2023-02-20	800
+4	3	2023-04-05	150
+Given below are the details of all the tables in this schema for your reference:
+
+Table Name: Customers
+
+Field	Datatype	Constraint
+CustomerID	INT	PRIMARY KEY
+FirstName	VARCHAR(50)	NOT NULL
+LastName	VARCHAR(50)	NOT NULL
+Email	VARCHAR(100)	UNIQUE NOT NULL
+Phone	VARCHAR(20)	
+Address	VARCHAR(255)	
+City	VARCHAR(50)	
+Region	VARCHAR(50)	
+Country	VARCHAR(50)	
+PostalCode	VARCHAR(10)	
+
+Table Name: Products
+
+Field	Datatype	Constraint
+ProductID	INT	PRIMARY KEY
+ProductName	VARCHAR(255)	NOT NULL
+Description	TEXT	
+CategoryID	INT	FOREIGN KEY referencing Categories(CategoryID)
+Price	DECIMAL(10, 2)	NOT NULL
+StockQuantity	INT	DEFAULT 0
+
+Table Name: Orders
+
+Field	Datatype	Constraint
+OrderID	INT	PRIMARY KEY
+CustomerID	INT	FOREIGN KEY referencing Customers(CustomerID)
+OrderDate	DATE	NOT NULL
+ShippingAddress	VARCHAR(255)	
+OrderStatus	VARCHAR(50)	DEFAULT 'Pending'
+
+Table Name: OrderDetails
+
+Field	Datatype	Constraint
+OrderDetailID	INT	PRIMARY KEY
+OrderID	INT	FOREIGN KEY referencing Orders(OrderID)
+ProductID	INT	FOREIGN KEY referencing Products(ProductID)
+Quantity	INT	NOT NULL
+UnitPrice	DECIMAL(10, 2)	NOT NULL
+
+Table Name: Payments
+
+Field	Datatype	Constraint
+PaymentID	INT	PRIMARY KEY
+OrderID	INT	FOREIGN KEY referencing Orders(OrderID)
+PaymentDate	DATE	NOT NULL
+Amount	DECIMAL(10, 2)	NOT NULL
+PaymentMethod	VARCHAR(50)	
+TransactionID	VARCHAR(100)	
+
+Table Name: Shipping
+
+Field	Datatype	Constraint
+ShippingID	INT	PRIMARY KEY
+OrderID	INT	FOREIGN KEY referencing Orders(OrderID)
+ShippingDate	DATE	
+TrackingNumber	VARCHAR(100)	
+Shipper	VARCHAR(50)	
+DeliveryDate	DATE	
+ShippingCost	DECIMAL(10, 2)	
+
+Table Name: Categories
+
+Field	Datatype	Constraint
+CategoryID	INT	PRIMARY KEY
+CategoryName	VARCHAR(255)	NOT NULL
+Description	TEXT
+
+SQL Query:-
+     
+WITH CTE1 AS (SELECT od.OrderID,sb1.CustomerID,sb1.OrderDate,sum(od.Quantity*od.UnitPrice) as TotalOrderAmount
+FROM
+(SELECT o.CustomerID,o.OrderID,o.OrderDate FROM Orders o ) as sb1
+JOIN  OrderDetails od on od.OrderID = sb1.OrderID
+group by sb1.CustomerID,sb1.OrderDate)
+
+select OrderID,CustomerID,OrderDate,max(TotalOrderAmount) as TotalOrderAmount 
+from CTE1
+group by CustomerID;
+
+OUTPUT:-
+┌─────────┬────────────┬────────────┬──────────────────┐
+│ OrderID │ CustomerID │ OrderDate  │ TotalOrderAmount │
+├─────────┼────────────┼────────────┼──────────────────┤
+│ 1       │ 1          │ 2023-01-15 │ 1225             │
+│ 2       │ 2          │ 2023-02-20 │ 800              │
+│ 4       │ 3          │ 2023-04-05 │ 150              │
+└─────────┴────────────┴────────────┴──────────────────┘
+Explaination:-
+Firstly, we have taken the ewquired fields from Orders table and make it as a subquery as sb1. Further we have joined this table i.e. sb1 with OrderDetails table to fetch the relevant columns as hown above in query
+and also found the TotalOrderAmount as required by using Aggregate function as 'sum(od.Quantity*od.UnitPrice)'and named this final query as CTE1 to create the CTE.Finally we have fetched the maximum TotalOrderAmount by using 'MAX(TotalOrderAmount)'
+as there were two TotalOrderAmount coming corresponding to CustomerID 1 so we have to find the maximum from them to omit another one to match the expected output..
