@@ -1,0 +1,55 @@
+Ques: To find out the Duplicate records from the table as shown below in the schema on the basis of first_name and last_name..
+
+
+-- Create the Schema.
+CREATE TABLE EMPLOYEE (
+  empId INTEGER,
+  first_name TEXT NOT NULL,
+   last_name TEXT NOT NULL
+);
+
+-- Insert the values..
+INSERT INTO EMPLOYEE VALUES (0001, 'John', 'Doe');
+INSERT INTO EMPLOYEE VALUES (0002, 'Jane', 'Smith');
+INSERT INTO EMPLOYEE VALUES (0003, 'John', 'Doe');
+INSERT INTO EMPLOYEE VALUES (0004, 'Emily', 'Davis');
+INSERT INTO EMPLOYEE VALUES (0005, 'Michael', 'Brown');
+INSERT INTO EMPLOYEE VALUES (0006, 'Jane', 'Smith');
+INSERT INTO EMPLOYEE VALUES (0007, 'Emily', 'Davis');
+INSERT INTO EMPLOYEE VALUES (0008, 'Emily', 'Davis');
+INSERT INTO EMPLOYEE VALUES (0009, 'David', 'Clark');
+INSERT INTO EMPLOYEE VALUES (0010, 'John', 'Doe');
+
+-- Method-1 to find the duplicate record on single row i.e. first_name
+
+select first_name,count(first_name) as first_name_counter
+from EMPLOYEE
+group by first_name
+having count(first_name) >1;
+
+
+--Method-2 To find the duplicate record on multiples row i.e. first_name and last_name
+
+SELECT first_name,last_name,count(*) as counter 
+from EMPLOYEE
+group by first_name,last_name
+having count(*) > 1;
+*/
+
+--Method-3 To find duplicate record by using row_number() Windows function..
+WITH CTE1 as (SELECT empId,first_name,last_name,
+row_number() over (partition by first_name,last_name order by empId) as rn,
+count(*) over (partition by first_name,last_name) as dup_count  
+from EMPLOYEE)
+
+select * from CTE1
+where rn > 1;
+
+--Method -4 To find the duplicate record by using Count Aggregate window functions..
+WITH CTE1 as (SELECT *,
+count(*) over (partition by first_name,last_name) as dup_count  
+from EMPLOYEE)
+
+select * from CTE1
+where dup_count > 1;
+**************************************************************************************************************************
